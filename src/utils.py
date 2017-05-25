@@ -26,7 +26,7 @@ def exists(p, msg):
 def list_files(in_path):
     files = []
     for (dirpath, dirnames, filenames) in os.walk(in_path):
-        files.extend(filenames)
+        files.extend([f for f in filenames if not f.startswith('.')])
         break
 
     return files
