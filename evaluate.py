@@ -255,13 +255,23 @@ def main():
     else:
         files = list_files(opts.in_path)
         full_in = map(lambda x: os.path.join(opts.in_path,x), files)
-        full_out = map(lambda x: os.path.join(opts.out_path,x), files)
-        if opts.allow_different_dimensions:
-            ffwd_different_dimensions(full_in, full_out, opts.checkpoint_dir, 
-                    device_t=opts.device, batch_size=opts.batch_size)
-        else :
-            ffwd(full_in, full_out, opts.checkpoint_dir, device_t=opts.device,
-                    batch_size=opts.batch_size)
+
+        checkpoints = []
+        if os.path.isdir(opts.checkpoint_dir):
+            checkpoints.extend(list_files(opts.checkpoint_dir))
+            checkpoints = map(lambda x: os.path.join(opts.checkpoint_dir, x), checkpoints)
+        else:
+            checkpoints.append(opts.checkpoint_dir)
+
+        for checkpoint in checkpoints:
+            full_out = map(lambda x: os.path.join(opts.out_path, os.path.basename(checkpoint) + "." + x), files)
+
+            if opts.allow_different_dimensions:
+                ffwd_different_dimensions(full_in, full_out, checkpoint,
+                        device_t=opts.device, batch_size=opts.batch_size)
+            else:
+                ffwd(full_in, full_out, checkpoint, device_t=opts.device,
+                        batch_size=opts.batch_size)
 
 if __name__ == '__main__':
     main()
